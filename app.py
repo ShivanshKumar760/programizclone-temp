@@ -1,10 +1,14 @@
 from flask import Flask , request , jsonify
+from dotenv import load_dotenv
 import os
 import tempfile
 import subprocess
 import psycopg
+
+load_dotenv()
 app = Flask(__name__)
-DATABASE_URL=os.environ("DATABASE_URL")
+# DATABASE_URL=os.environ("DATABASE_URL")
+DATABASE_URL=os.environ["DATABASE_URL"]
 
 @app.route("/",methods=["GET"])
 def health():
@@ -22,8 +26,14 @@ def signup():
     #Cursor-basically points to the currenct connection
     cur = conn.cursor()
     #SQL templating
-    cur.execute("INSERT INTO <table_name> (name,password) VALUES (%s,%s)",(name,password),)
+    cur.execute("INSERT INTO users_test (name,password) VALUES (%s,%s) RETURNING id",(name,password),)
     row = cur.fetchone()
+    conn.commit()
+    conn.close()
+
+    print(row)
+
+    return jsonify({"message":"signup success"})
 
 
 @app.route("/signin",methods=["POST"])
