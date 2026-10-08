@@ -2,12 +2,33 @@ from flask import Flask , request , jsonify
 import os
 import tempfile
 import subprocess
+import psycopg
 app = Flask(__name__)
-
+DATABASE_URL=os.environ("DATABASE_URL")
 
 @app.route("/",methods=["GET"])
 def health():
     return jsonify({"status":"Ok"})
+
+
+@app.route("/signup",methods=["POST"])
+def signup():
+    data = request.get_json()
+    #data = {"name":"Shivansh","password":"1234"}
+    name = data.get("name") #Shivansh
+    password = data.get("password")#1234
+
+    conn = psycopg.connect(DATABASE_URL)
+    #Cursor-basically points to the currenct connection
+    cur = conn.cursor()
+    #SQL templating
+    cur.execute("INSERT INTO <table_name> (name,password) VALUES (%s,%s)",(name,password),)
+    row = cur.fetchone()
+
+
+@app.route("/signin",methods=["POST"])
+def signin():
+    conn = psycopg.connect(DATABASE_URL)
 
 
 @app.route("/execute",methods=["POST"])
